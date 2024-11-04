@@ -1,0 +1,324 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "TintShade API Documentation",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "https://tint-shade.com/api/v1"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "UserFullname": {
+        "type": "object",
+        "properties": {
+          "fullname": {
+            "type": "string"
+          }
+        }
+      },
+      "UserEmail": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "uniqueItems": true
+          }
+        }
+      },
+      "UserPassword": {
+        "type": "object",
+        "properties": {
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "ColorPalette": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "hsl": {
+            "type": "object",
+            "required": [
+              "hue",
+              "saturation",
+              "luminance"
+            ],
+            "properties": {
+              "hue": {
+                "type": "number"
+              },
+              "saturation": {
+                "type": "number"
+              },
+              "luminance": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      },
+      "Id": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          }
+        }
+      },
+      "ResponseMessage": {
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/auth/sign-up": {
+      "post": {
+        "description": "User account registration. Just to create an account, not automatically sign in.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UserFullname"
+                  },
+                  {
+                    "$ref": "#/components/schemas/UserEmail"
+                  },
+                  {
+                    "$ref": "#/components/schemas/UserPassword"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Sign Up has been successful, please sign in!",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ResponseMessage"
+                    },
+                    {
+                      "properties": {
+                        "payload": {
+                          "type": "object",
+                          "required": [
+                            "user"
+                          ],
+                          "properties": {
+                            "user": {
+                              "allOf": [
+                                {
+                                  "$ref": "#/components/schemas/Id"
+                                },
+                                {
+                                  "$ref": "#/components/schemas/UserFullname"
+                                },
+                                {
+                                  "$ref": "#/components/schemas/UserEmail"
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/sign-in": {
+      "post": {
+        "description": "User sign in to get access tokens",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UserEmail"
+                  },
+                  {
+                    "$ref": "#/components/schemas/UserPassword"
+                  }
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Success",
+            "headers": {
+              "Set-Cookie": {
+                "description": "The token placed",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseMessage"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/sign-out": {
+      "post": {
+        "description": "Sign out user",
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "ACCESS_TOKEN",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Sign Out has succeeded!"
+          }
+        }
+      }
+    },
+    "/palettes": {
+      "get": {
+        "description": "Take all the color pallet that the user is saved",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ResponseMessage"
+                    }
+                  ],
+                  "properties": {
+                    "payload": {
+                      "type": "object",
+                      "properties": {
+                        "palettes": {
+                          "type": "array",
+                          "items": {
+                            "allOf": [
+                              {
+                                "$ref": "#components/schemas/Id"
+                              },
+                              {
+                                "$ref": "#components/schemas/ColorPalette"
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Make a new pallet color from user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ColorPalette"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The color palette was successfully made",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "type": "object",
+                      "properties": {
+                        "palette": {
+                          "allOf": [
+                            {
+                              "$ref": "#components/schemas/Id"
+                            },
+                            {
+                              "$ref": "#components/schemas/ColorPalette"
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/palettes/{palette_id}": {
+      "delete": {
+        "description": "Delete specific pallets",
+        "parameters": [
+          {
+            "name": "palette_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Removing the color palet has success"
+          }
+        }
+      }
+    }
+  }
+}
