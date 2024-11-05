@@ -23,8 +23,7 @@
         "type": "object",
         "properties": {
           "email": {
-            "type": "string",
-            "uniqueItems": true
+            "type": "string"
           }
         }
       },
@@ -213,9 +212,19 @@
         }
       }
     },
-    "/palettes": {
+    "/user/{user_id}/palettes": {
       "get": {
         "description": "Take all the color pallet that the user is saved",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success",
@@ -237,10 +246,10 @@
                           "items": {
                             "allOf": [
                               {
-                                "$ref": "#components/schemas/Id"
+                                "$ref": "#/components/schemas/Id"
                               },
                               {
-                                "$ref": "#components/schemas/ColorPalette"
+                                "$ref": "#/components/schemas/ColorPalette"
                               }
                             ]
                           }
@@ -256,6 +265,16 @@
       },
       "post": {
         "description": "Make a new pallet color from user",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -283,10 +302,10 @@
                         "palette": {
                           "allOf": [
                             {
-                              "$ref": "#components/schemas/Id"
+                              "$ref": "#/components/schemas/Id"
                             },
                             {
-                              "$ref": "#components/schemas/ColorPalette"
+                              "$ref": "#/components/schemas/ColorPalette"
                             }
                           ]
                         }
@@ -300,10 +319,73 @@
         }
       }
     },
-    "/palettes/{palette_id}": {
+    "/user/{user_id}/palettes/{palette_id}": {
+      "get": {
+        "description": "Get specific palette color",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "palette_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ResponseMessage"
+                    }
+                  ],
+                  "properties": {
+                    "payload": {
+                      "type": "object",
+                      "properties": {
+                        "palette": {
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/Id"
+                            },
+                            {
+                              "$ref": "#/components/schemas/ColorPalette"
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "delete": {
         "description": "Delete specific pallets",
         "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "name": "palette_id",
             "in": "path",
