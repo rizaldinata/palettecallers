@@ -12,3 +12,6 @@ Route::get('/login', function () {
 Route::get('/register', function () {
     return Inertia::render('Register');
 });
+Route::get('/utama', function () {
+    return Inertia::render('PageUtama');
+});
